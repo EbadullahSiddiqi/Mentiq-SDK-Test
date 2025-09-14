@@ -2,7 +2,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
+const cors = require("cors");
 app.use(bodyParser.json({ limit: "5mb" }));
+app.use(cors());
 
 app.post("/collect", (req, res) => {
   const { apiKey, events } = req.body || {};
