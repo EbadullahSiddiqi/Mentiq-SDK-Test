@@ -116,8 +116,48 @@ Use the provided demo collector in `server/collector.js` during local developmen
 - **captureClicks**: capture `data-mentiq-track` clicks (default true)
 - **enablePersistence**: use local/session storage (default true)
 - **debug / logLevel**: debug prints or set `error|warn|info|debug`
+- **sessionTimeoutMs**: inactivity threshold to start a new session (default 30m)
 
 ### 10) SSR safety
+
+### 11) Sessions and activity
+
+- SDK emits `session_start` and `session_end` automatically based on inactivity (`sessionTimeoutMs`).
+- Activity (click/scroll/keydown/mousemove/touchstart) refreshes the session timer.
+
+### 12) Context enrichment
+
+- Super properties auto-populated: `locale`, `userAgent`, `deviceType`, `os`, and `utm` params.
+- You can override or extend via `setSuperProperties`.
+
+### 13) Feature and billing helpers
+
+- Track feature adoption: `mentiq.trackFeatureAdoption('Feature A', { variant: 'v2' })`.
+- Track billing lifecycle:
+  - `mentiq.trackBilling('trial_started', { plan: 'basic' })`
+  - `mentiq.trackBilling('trial_converted', { amount: 9900, currency: 'USD', plan: 'pro', period: 'monthly' })`
+  - `mentiq.trackBilling('plan_upgraded', { plan: 'enterprise' })`
+  - `mentiq.trackBilling('subscription_canceled', { reason: 'no_budget' })`
+
+### 14) Plugins
+
+- Register plugins to mutate/drop events and observe flush results:
+
+```ts
+mentiq.registerPlugin({
+  name: 'sample',
+  beforeEnqueue(event) {
+    // e.g., drop noisy events
+    if (event.event === 'mousemove') return false;
+    // add a tag
+    event.properties = { ...(event.properties||{}), env: 'prod' };
+    return event;
+  },
+  afterFlush({ ok, status, count }) {
+    console.log('flushed', ok, status, count);
+  },
+});
+```
 
 The SDK checks for `window`/`document` before accessing browser APIs. Initialize in client components or guards to avoid SSR hazards.
 

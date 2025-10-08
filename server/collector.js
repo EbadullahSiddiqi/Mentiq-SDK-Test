@@ -7,7 +7,7 @@ app.use(bodyParser.json({ limit: "5mb" }));
 app.use(cors());
 
 app.post("/collect", (req, res) => {
-  const { apiKey, events } = req.body || {};
+  const { apiKey, events, user } = req.body || {};
   console.log("--- RECEIVED BATCH ---");
   console.log("apiKey:", apiKey);
   if (Array.isArray(events)) {
@@ -22,6 +22,7 @@ app.post("/collect", (req, res) => {
   } else {
     console.log("payload", req.body);
   }
+  if (user) console.log(" user:", user);
   console.log("--- END BATCH ---\n");
   res.json({ ok: true });
 });
